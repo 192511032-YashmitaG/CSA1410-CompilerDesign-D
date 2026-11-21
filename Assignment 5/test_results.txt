@@ -1,0 +1,11 @@
+test_dag_identity (test_assignment5.Assignment5Tests.test_dag_identity) ... ok
+test_flow_graph (test_assignment5.Assignment5Tests.test_flow_graph) ... ok
+test_leaders_and_partition (test_assignment5.Assignment5Tests.test_leaders_and_partition) ... ok
+test_liveness_fixed_point (test_assignment5.Assignment5Tests.test_liveness_fixed_point) ... ok
+test_next_use (test_assignment5.Assignment5Tests.test_next_use) ... ok
+test_register_codegen (test_assignment5.Assignment5Tests.test_register_codegen) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.000s
+
+OK
