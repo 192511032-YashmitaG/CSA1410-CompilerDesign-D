@@ -1,0 +1,105 @@
+
+========================================================================
+TASK 1 - SYMBOL TABLE
+========================================================================
+a        int                          width=4    offset=0    scope=global
+b        int                          width=4    offset=4    scope=global
+c        array(10, float)             width=80   offset=8    scope=global
+r        record{x:int, y:float}       width=12   offset=88   scope=global
+p        pointer(float)               width=4    offset=100  scope=global
+TOTAL global = 104 bytes
+TRACE:
+enter(a, t=int, w=4)
+offset update: 0 -> 4
+enter(b, t=int, w=4)
+offset update: 4 -> 8
+enter(c, t=array(10, float), w=80)
+offset update: 8 -> 88
+record R: width=12, fields=[('x', 'int', 0), ('y', 'float', 4)]
+enter(r, t=record{x:int, y:float}, w=12)
+offset update: 88 -> 100
+enter(p, t=pointer(float), w=4)
+offset update: 100 -> 104
+BOUNDARY: duplicate declaration of 'a'
+
+========================================================================
+TASK 2 - THREE ADDRESS CODE
+========================================================================
+QUADRUPLES
+000: (+, a, b, t1)
+001: (*, t1, t1, t2)
+002: (bounds_check, i, A, None)
+003: (load_index, A, i, t3)
+004: (bounds_check, j, t3, None)
+005: (load_index, t3, j, t4)
+006: (inttofloat, t4, None, t5)
+007: (*, t5, 2.0, t6)
+008: (inttofloat, t2, None, t7)
+009: (+, t7, t6, t8)
+010: (=, t8, None, x)
+TRIPLES
+0 ('+', 'a', 'b')
+1 ('*', 't1', 't1')
+2 ('bounds_check', 'i', 'A')
+3 ('load_index', 'A', 'i')
+4 ('bounds_check', 'j', 't3')
+5 ('load_index', 't3', 'j')
+6 ('inttofloat', 't4', None)
+7 ('*', 't5', '2.0')
+8 ('inttofloat', 't2', None)
+9 ('+', 't7', 't6')
+10 ('=', 't8', None)
+INDIRECT TRIPLES [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] [('+', 'a', 'b'), ('*', 't1', 't1'), ('bounds_check', 'i', 'A'), ('load_index', 'A', 'i'), ('bounds_check', 'j', 't3'), ('load_index', 't3', 'j'), ('inttofloat', 't4', None), ('*', 't5', '2.0'), ('inttofloat', 't2', None), ('+', 't7', 't6'), ('=', 't8', None)]
+TEMPORARIES 8
+TRACE ['allocate t1', "value-number hit ('+', 'a', 'b', 'int')", 'allocate t2', 'allocate t3', 'allocate t4', 'allocate t5', 'allocate t6', 'allocate t7', 'allocate t8']
+
+========================================================================
+TASK 3 - BACKPATCHING
+========================================================================
+LISTS {'truelist': [2], 'falselist': [1, 3], 'nextlist': []}
+FINAL QUADRUPLES
+000: (ifgoto, a < b, None, 2)
+001: (goto, None, None, None)
+002: (ifgoto, c < d, None, None)
+003: (goto, None, None, None)
+CHECK ['quad 1: unresolved/out-of-range target None', 'quad 2: unresolved/out-of-range target None', 'quad 3: unresolved/out-of-range target None']
+DELIBERATE DEFECT ['quad 0: unresolved/out-of-range target None']
+
+========================================================================
+TASK 4 - SWITCH
+========================================================================
+value=1: sequential=1 tests, binary=2 tests, jump-table=2 tests, slots=1000
+value=3: sequential=3 tests, binary=2 tests, jump-table=2 tests, slots=1000
+value=1000: sequential=4 tests, binary=3 tests, jump-table=2 tests, slots=1000
+value=999: sequential=4 tests, binary=3 tests, jump-table=2 tests, slots=1000
+SEQUENTIAL ['if x == 1 goto L1', 'if x == 2 goto L2', 'if x == 3 goto L3', 'if x == 1000 goto L1000', 'goto Ldefault']
+BINARY ['compare x with 2', 'compare x with 3', 'compare x with 1000']
+JUMP TABLE ['index = x - (1)', 'if index outside [0,999] goto Ldefault', 'goto table[index]']
+
+========================================================================
+TASK 5 - PROCEDURE CALLS
+========================================================================
+arg n
+arg n-1
+call fact, 2
+t1 = RET
+return t1
+ACTIVATION RECORD
+('a', 'parameter', 0, 8)
+('b', 'parameter', 8, 8)
+('loc1', 'local', 16, 8)
+('loc2', 'local', 24, 8)
+('t1', 'temporary', 32, 8)
+('t2', 'temporary', 40, 8)
+('t3', 'temporary', 48, 8)
+('retval', 'return value', 56, 8)
+('retaddr', 'return address', 64, 4)
+('dynlink', 'saved frame ptr', 68, 4)
+
+TASK 6 - INTEGRATION VALIDATION
+factorial-recursion      expected=120 status=PASS (reference test vector)
+array-sum                expected=14 status=PASS (reference test vector)
+short-circuit            expected=2 status=PASS (reference test vector)
+if-else-in-loop          expected=15 status=PASS (reference test vector)
+or-condition             expected=7 status=PASS (reference test vector)
+Note: these are deterministic integration test vectors; the mini harness does not parse arbitrary source programs.
